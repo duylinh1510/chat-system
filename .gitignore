@@ -66,3 +66,5 @@ Desktop.ini
 .vscode/
 *.swp
 *.swo
+
+frontend/public/
