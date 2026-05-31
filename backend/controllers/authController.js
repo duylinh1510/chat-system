@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import Session from '../models/Session.js';
 import crypto from 'crypto';
 
-const ACCESS_TOKEN_TTL = '30m';
+const ACCESS_TOKEN_TTL = "30s";
 const REFRESH_TOKEN_TTL = 14 * 24 * 60 * 60 * 1000; //14d
 
 export const signUp = async (req, res) => {
@@ -116,5 +116,40 @@ export const signOut = async (req, res) => {
     } catch (error) {
         console.error('signOut Error', error);
         return res.status(500).json({ message: "Internal Server Error" })
+    }
+}
+
+// tạo accessToken mới từ refreshToken để tăng tính UX
+export const refreshToken = async (req, res) => {
+    try {
+        // lấy refresh token từ cookie
+        const token = req.cookies?.refreshToken;
+
+        if (!token) {
+            return res.status(401).json({ message: "Invalid or expired token." })
+        }
+
+        // so sánh với refresh token trong DB
+        const session = await Session.findOne({ refreshToken: token });
+
+        if (!session) {
+            return res.status(403).json({ message: "Invalid or expired token" });
+        }
+
+        // kiểm tra refresh token hết hạn chưa
+        if (session.expiresAt < new Date()) {
+            return res.status(403).json({ message: "Invalid or expired token" })
+        }
+
+        //tạo access token mới
+        const accessToken = jwt.sign({
+            userId: session.userId
+        }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: ACCESS_TOKEN_TTL });
+
+        //trả access token
+        return res.status(200).json({ accessToken });
+    } catch (error) {
+        console.error("Error while getting refresh token", error);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 }
