@@ -40,6 +40,9 @@ export interface Conversation {
   updatedAt: string;
 }
 
+export type ConversationUpdate = Partial<Conversation> &
+  Pick<Conversation, "_id">;
+
 export interface ConversationResponse {
   conversations: Conversation[];
 }

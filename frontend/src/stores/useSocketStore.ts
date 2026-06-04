@@ -55,13 +55,28 @@ export const useSocketStore = create<SocketState>((set, get) => ({
         unreadCounts,
       };
 
+      // nếu có tin nhắn mới và user mở cuộc hội thoại chứa tin nhắn đó lên
+      // thì mark as seen ngay lập tức
       if (
         useChatStore.getState().activeConversationId === message.conversationId
       ) {
-        //đánh đấu đã đọc
+        useChatStore.getState().markAsSeen();
       }
 
       useChatStore.getState().updateConversation(updatedConversation);
+    });
+
+    //mark as seen
+    socket.on("read-message", ({ conversation, lastMessage }) => {
+      const updated = {
+        _id: conversation._id,
+        lastMessage,
+        lastMessageAt: conversation.lastMessageAt,
+        unreadCounts: conversation.unreadCounts,
+        seenBy: conversation.seenBy,
+      };
+
+      useChatStore.getState().updateConversation(updated);
     });
 
     socket.on("connect_error", (error) => {

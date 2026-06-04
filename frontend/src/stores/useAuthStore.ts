@@ -18,8 +18,9 @@ export const useAuthStore = create<AuthState>()(
 
       clearState: () => {
         set({ accessToken: null, user: null, loading: false });
-        localStorage.clear();
         useChatStore.getState().reset(); // đảm bảo user khi logout hay đăng nhập lại sẽ có state từ chatStore
+        localStorage.clear();
+        sessionStorage.clear();
       },
 
       signUp: async (username, password, email, firstName, lastName) => {
@@ -48,9 +49,9 @@ export const useAuthStore = create<AuthState>()(
 
       signIn: async (username, password) => {
         try {
+          get().clearState();
           set({ loading: true });
 
-          localStorage.clear();
           useChatStore.getState().reset();
 
           const { accessToken } = await authService.signIn(username, password);

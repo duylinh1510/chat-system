@@ -1,5 +1,5 @@
 import type { Socket } from "socket.io-client";
-import type { Message } from "./chat";
+import type { ConversationUpdate, Message } from "./chat";
 import type { Conversation } from "./chat";
 import type { User } from "./user";
 
@@ -64,7 +64,8 @@ export interface ChatState {
   addMessage: (message: Message) => Promise<void>;
 
   //update convo
-  updateConversation: (conversation: Conversation) => void;
+  updateConversation: (conversation: ConversationUpdate) => void;
+  markAsSeen: () => Promise<void>;
 }
 
 export interface SocketState {
