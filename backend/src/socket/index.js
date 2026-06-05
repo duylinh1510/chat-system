@@ -34,6 +34,11 @@ io.on("connection", async (socket) => {
         socket.join(id);
     })
 
+    //khi user tạo conversation mới thì server tự join vào phòng đó
+    socket.on("join-conversation", (conversationId) => {
+        socket.join(conversationId);
+    });
+
     socket.on("disconnect", () => {
         onlineUsers.delete(user._id);
         io.emit("online-users", Array.from(onlineUsers.keys()));

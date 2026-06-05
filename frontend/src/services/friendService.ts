@@ -11,4 +11,39 @@ export const friendService = {
 
     return res.data.message;
   },
+
+  async getAllFriendRequests() {
+    try {
+      const res = await api.get("/friends/requests");
+
+      const { sent, received } = res.data;
+
+      return { sent, received };
+    } catch (error) {
+      console.error("Error while fetching friend requests", error);
+    }
+  },
+
+  async acceptRequest(requestId: string) {
+    try {
+      const res = await api.post(`/friends/requests/${requestId}/accept`);
+
+      return res.data.requestAcceptBy;
+    } catch (error) {
+      console.error("Error while acceptRequest", error);
+    }
+  },
+
+  async declineRequest(requestId: string) {
+    try {
+      await api.post(`/friends/requests/${requestId}/decline`);
+    } catch (error) {
+      console.error("Error while sending declineRequest", error);
+    }
+  },
+
+  async getFriendList() {
+    const res = await api.get("/friends");
+    return res.data.friends;
+  },
 };
