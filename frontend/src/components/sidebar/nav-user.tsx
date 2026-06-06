@@ -17,23 +17,16 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import type { User } from "@/types/user";
-import {
-  ChevronsUpDownIcon,
-  SparklesIcon,
-  BadgeCheckIcon,
-  CreditCardIcon,
-  BellIcon,
-  LogOutIcon,
-  UserIcon,
-  Bell,
-} from "lucide-react";
+import { ChevronsUpDownIcon, UserIcon, Bell } from "lucide-react";
 import Logout from "../auth/logout";
 import { useState } from "react";
 import FriendRequestDialog from "../FriendRequest/FriendRequestDialog";
+import ProfileDialog from "../profile/ProfileDialog";
 
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar();
   const [friendRequestOpen, setFriendRequestOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
 
   return (
     <>
@@ -82,7 +75,7 @@ export function NavUser({ user }: { user: User }) {
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setProfileOpen(true)}>
                   <UserIcon className="text-muted-foreground dark:group-focus:!text-accent-foreground" />
                   Tài khoản
                 </DropdownMenuItem>
@@ -107,6 +100,8 @@ export function NavUser({ user }: { user: User }) {
         open={friendRequestOpen}
         setOpen={setFriendRequestOpen}
       />
+
+      <ProfileDialog open={profileOpen} setOpen={setProfileOpen} />
     </>
   );
 }

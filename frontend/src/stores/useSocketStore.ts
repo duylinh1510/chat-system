@@ -79,6 +79,12 @@ export const useSocketStore = create<SocketState>((set, get) => ({
       useChatStore.getState().updateConversation(updated);
     });
 
+    //new group
+    socket.on("new-group", (conversation) => {
+      useChatStore.getState().addConvo(conversation);
+      socket.emit("join-conversation", conversation._id);
+    });
+
     socket.on("connect_error", (error) => {
       console.error("Socket connect error:", error.message);
     });

@@ -3,7 +3,6 @@ import type { ChatState } from "@/types/store";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { useAuthStore } from "./useAuthStore";
-import { get } from "react-hook-form";
 import { useSocketStore } from "./useSocketStore";
 
 export const useChatStore = create<ChatState>()(
@@ -14,6 +13,7 @@ export const useChatStore = create<ChatState>()(
       activeConversationId: null,
       convoLoading: false,
       messageLoading: false,
+      loading: false,
       setActiveConversation: (id) => set({ activeConversationId: id }),
       reset: () => {
         set({
@@ -218,6 +218,7 @@ export const useChatStore = create<ChatState>()(
       },
       createConversation: async (type, name, memberIds) => {
         try {
+          set({ loading: true });
           const conversation = await chatService.createConversation(
             type,
             name,
@@ -231,6 +232,8 @@ export const useChatStore = create<ChatState>()(
             .socket?.emit("join-conversation", conversation._id);
         } catch (error) {
           console.error("Error while creating conversation", error);
+        } finally {
+          set({ loading: false });
         }
       },
     }),
