@@ -76,9 +76,15 @@ export interface ChatState {
   ) => Promise<void>;
 }
 
+export interface TypingUser {
+  _id: string;
+  displayName: string;
+}
+
 export interface SocketState {
   socket: Socket | null;
   onlineUsers: string[];
+  typingUsers: Record<string, TypingUser[]>;
   connectSocket: () => void;
   disconnectSocket: () => void;
 }

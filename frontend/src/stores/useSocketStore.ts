@@ -9,6 +9,7 @@ const baseURL = import.meta.env.VITE_SOCKET_URL;
 export const useSocketStore = create<SocketState>((set, get) => ({
   socket: null,
   onlineUsers: [],
+  typingUsers: {},
   connectSocket: () => {
     const accessToken = useAuthStore.getState().accessToken;
 
@@ -32,6 +33,43 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     //online users
     socket.on("online-users", (usersIds) => {
       set({ onlineUsers: usersIds });
+    });
+
+    //typing
+    socket.on("typing:start", ({ conversationId, user }) => {
+      set((state) => {
+        const currentTypingUsers = state.typingUsers[conversationId] ?? [];
+
+        //kiểm tra nếu đang typing rồi thì thôi
+        //không emit sự kiện để tránh duplicate sự kiện
+        const alreadyTyping = currentTypingUsers.some(
+          (typingUser) => typingUser._id === user._id,
+        );
+
+        if (alreadyTyping) return state;
+
+        return {
+          typingUsers: {
+            ...state.typingUsers,
+            [conversationId]: [...currentTypingUsers, user],
+          },
+        };
+      });
+    });
+
+    socket.on("typing:stop", ({ conversationId, user }) => {
+      set((state) => {
+        const currentTypingUsers = state.typingUsers[conversationId] ?? [];
+
+        return {
+          typingUsers: {
+            ...state.typingUsers,
+            [conversationId]: currentTypingUsers.filter(
+              (typingUser) => typingUser._id !== user._id,
+            ),
+          },
+        };
+      });
     });
 
     //new message
@@ -99,7 +137,7 @@ export const useSocketStore = create<SocketState>((set, get) => ({
     const socket = get().socket;
     if (socket) {
       socket.disconnect();
-      set({ socket: null });
+      set({ socket: null, typingUsers: {} });
     }
   },
 }));

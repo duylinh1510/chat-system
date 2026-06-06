@@ -42,6 +42,31 @@ io.on("connection", async (socket) => {
     //tạo phòng theo userid
     socket.join(user._id.toString());
 
+    //typing indicator
+    socket.on("typing:start", ({ conversationId }) => {
+        if (!conversationId) return;
+
+        socket.to(conversationId).emit("typing:start", {
+            conversationId,
+            user: {
+                _id: user._id,
+                displayName: user.displayName,
+            },
+        });
+    });
+
+    socket.on("typing:stop", ({ conversationId }) => {
+        if (!conversationId) return;
+
+        socket.to(conversationId).emit("typing:stop", {
+            conversationId,
+            user: {
+                _id: user._id,
+                displayName: user.displayName,
+            },
+        });
+    });
+
     socket.on("disconnect", () => {
         onlineUsers.delete(user._id);
         io.emit("online-users", Array.from(onlineUsers.keys()));
